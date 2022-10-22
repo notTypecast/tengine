@@ -1,6 +1,6 @@
 # tengine
 
-TEngine is a simply game engine for command line games, written in Python.
+TEngine is a simple game engine for command line games, written in Python.
 Making a game with TEngine is simple. The general template is presented in the steps below:
 
 1. Import the file.
