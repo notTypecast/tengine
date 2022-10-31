@@ -183,12 +183,13 @@ class KeyListener:
 					last_press = self.eQueue._getLastPressTime()
 
 					if c:
-						for keycode in self.rec_keycodes:
-							if c == keycode:
-								self.eQueue._put(self.rec_keycodes[c])
-								if self.rec_keycodes[c] == "EXIT":
-									exit(0)
-								break
+						try:
+							self.eQueue._put(self.rec_keycodes[c])
+							if self.rec_keycodes[c] == 0:
+								return
+
+						except KeyError:
+							pass
 
 					elif last_press and time() - last_press > .05:
 						self.eQueue._clear()
@@ -197,13 +198,12 @@ class KeyListener:
 					pass
 				except ValueError:
 					self.__del__()
-					exit(0)
+					return
 
 
 		except KeyboardInterrupt:
-			termios.tcsetattr(self.fd, termios.TCSAFLUSH, self.oldterm)
-			fcntl.fcntl(self.fd, fcntl.F_SETFL, self.oldflags)
-			self.eQueue._put("EXIT")
+			self.__del__()
+			return
 
 		
 
@@ -249,11 +249,10 @@ class Drawer:
 
 
 		call("clear", shell = True)
-		for row in range(rows):
-			for column in range(columns):
-				sys.stdout.write(str(display[row][column]))
-
-			
+		for row in display:
+			for cell in row:
+				sys.stdout.write(str(cell))
+		
 		sys.stdout.flush()
 		self.last_draw = time()
 
@@ -297,10 +296,14 @@ class Display:
 		self._updateSize()
 		self._displayArray = []
 		for row in range(self._rows):
-			self._displayArray.append([" " for column in range(self._columns)])
+			self._displayArray.append([" "]*self._columns)
 
 	def __getitem__(self, index):
 		return self._displayArray[round(index)]
+
+	def __iter__(self):
+		return iter(self._displayArray)
+
 
 
 
